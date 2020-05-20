@@ -3,4 +3,5 @@ db:
   disk: 1024
   size: S
 
-  
+rediscache:
+  type: redis:5.0
