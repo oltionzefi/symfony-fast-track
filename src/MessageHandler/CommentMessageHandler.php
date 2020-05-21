@@ -13,6 +13,8 @@ use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Bridge\Twig\Mime\NotificationEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use App\ImageOptimizer;
+use App\Notification\CommentReviewNotification;
+use Symfony\Component\Notifier\NotifierInterface;
 
 class CommentMessageHandler implements MessageHandlerInterface
 {
@@ -21,8 +23,7 @@ class CommentMessageHandler implements MessageHandlerInterface
     private $commentRepository;
     private $bus;
     private $workflow;
-    private $mailer;
-    private $adminEmail;
+    private $notifier;
     private $photoDir;
     private $imageOptimizer;
     private $logger;
@@ -33,9 +34,8 @@ class CommentMessageHandler implements MessageHandlerInterface
         CommentRepository $commentRepository,
         MessageBusInterface $bus,
         WorkflowInterface $commentStateMachine,
-        MailerInterface $mailer,
         ImageOptimizer $imageOptimizer,
-        string $adminEmail,
+        NotifierInterface $notifier,
         string $photoDir,
         LoggerInterface $logger = null
     ) {
@@ -44,9 +44,8 @@ class CommentMessageHandler implements MessageHandlerInterface
         $this->commentRepository = $commentRepository;
         $this->bus = $bus;
         $this->workflow = $commentStateMachine;
-        $this->mailer = $mailer;
         $this->imageOptimizer = $imageOptimizer;
-        $this->adminEmail = $adminEmail;
+        $this->notifier = $notifier;
         $this->photoDir = $photoDir;
         $this->logger = $logger;
     }
@@ -87,12 +86,9 @@ class CommentMessageHandler implements MessageHandlerInterface
             );
             $this->entityManager->flush();
 
-            $this->mailer->send((new NotificationEmail())
-                ->subject('New Comment posted')
-                ->htmlTemplate('emails/comment_notification.html.twig')
-                ->from($this->adminEmail)
-                ->to($this->adminEmail)
-                ->context(['comment' => $comment])
+            $this->notifier->send(
+                new CommentReviewNotification($comment),
+                $this->notifier->getAdminRecipients()
             );
         } elseif ($this->logger) {
             $this->logger->debug('Dropping comment message', [
