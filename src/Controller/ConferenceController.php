@@ -15,6 +15,8 @@ use App\Form\CommentFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use App\SpamChecker;
+use App\Message\CommentMessage;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class ConferenceController extends AbstractController
 {
@@ -22,11 +24,16 @@ class ConferenceController extends AbstractController
 
     private $entityManager;
 
+    private $bus;
 
-    public function __construct(Environment $twig, EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        Environment $twig, 
+        EntityManagerInterface $entityManager,
+        MessageBusInterface $bus
+    ) {
         $this->twig = $twig;
         $this->entityManager = $entityManager;
+        $this->bus = $bus;
     }
     /**
      * @Route("/", name="homepage")
@@ -45,7 +52,6 @@ class ConferenceController extends AbstractController
         Request $request, 
         Conference $conference, 
         CommentRepository $commentRepository,
-        SpamChecker $spamChecker,
         string $photoDir
     ) {
         $comment = new Comment();
@@ -69,19 +75,9 @@ class ConferenceController extends AbstractController
             }
 
             $this->entityManager->persist($comment);
-
-            $context = [
-                'user_ip' => $request->getClientIp(),
-                'user_agent' => $request->headers->get('user-agent'),
-                'referrer' => $request->headers->get('referrer'),
-                'permalink' => $request->getUri(),
-            ];
-
-            if (2 === $spamChecker->getSpamScore($comment, $context)) {
-                throw new \RuntimeException("Spam! Spam! Spam!");
-            }
-
             $this->entityManager->flush();
+
+            $this->bus->dispatch(new CommentMessage($comment->getId(), $context));
 
             return $this->redirectToRoute('conference', ['slug' => $conference->getSlug()]);
         }
