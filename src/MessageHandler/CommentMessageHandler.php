@@ -25,14 +25,14 @@ class CommentMessageHandler implements MessageHandlerInterface
         SpamChecker $spamChecker,
         CommentRepository $commentRepository,
         MessageBusInterface $bus,
-        WorkflowInterface $workflow,
+        WorkflowInterface $commentStateMachine,
         LoggerInterface $logger
     ) {
         $this->entityManager = $entityManager;
         $this->spamChecker = $spamChecker;
         $this->commentRepository = $commentRepository;
         $this->bus = $bus;
-        $this->workflow = $workflow;
+        $this->workflow = $commentStateMachine;
         $this->logger = $logger;
     }
 

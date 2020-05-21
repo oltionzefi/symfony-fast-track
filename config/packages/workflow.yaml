@@ -17,7 +17,7 @@ framework:
                 - spam
                 - rejected
                 - published
-            translations:
+            transitions:
                 accept:
                     from: submitted
                     to: ham
