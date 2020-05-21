@@ -20,6 +20,9 @@ class SpamChecker
 
     public function getSpamScore(Comment $comment, array $context): int
     {
+        // returning randomly true or false since we have no endpoint check
+        return rand(0, 1) === 1 ? 'true' : 'false';
+
         $response = $this->client->request('POST', $this->endpoint, [
             'body' => array_merge($context, [
                 'blog' => 'https://guestbook.example.com',

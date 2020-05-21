@@ -12,7 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Comment;
 use App\Message\CommentMessage;
+use Symfony\Bundle\FrameworkBundle\HttpCache\HttpCache;
+use Symfony\Component\HttpKernel\KernelInterface;
 
+/**
+ * @Route("/admin")
+ */
 class AdminController extends AbstractController
 {
     private $twig;
@@ -30,7 +35,7 @@ class AdminController extends AbstractController
         $this->bus = $bus;
     }
     /**
-     * @Route("/admin/comment/review/{id}", name="review_comment")
+     * @Route("/comment/review/{id}", name="review_comment")
      */
     public function reviewComment(
         Request $request, 
@@ -60,5 +65,22 @@ class AdminController extends AbstractController
             'transition' => $transition,
             'comment' => $comment,
         ]);
+    }
+
+    /**
+     * @Route("/http-cache/{uri<.*>}", methods={"PURGE"})
+     */
+    public function purgeHttpCache(
+        KernelInterface $kernel, 
+        Request $request, 
+        string $uri
+    ) {
+        if ('prod' === $kernel->getEnvironment()) {
+            return new Response('KO', 400);
+        }
+
+        $store = (new class($kernel) extends HttpCache {})->getStore();
+        $store->purge($request->getSchemeAndHttpHost().'/'.$uri);
+        return new Response("Done");
     }
 }

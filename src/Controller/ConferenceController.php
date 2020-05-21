@@ -40,9 +40,12 @@ class ConferenceController extends AbstractController
      */
     public function index(ConferenceRepository $conferenceRepository)
     {
-       return new Response($this->twig->render('conference/index.html.twig', [
+       $response = new Response($this->twig->render('conference/index.html.twig', [
            'conferences' => $conferenceRepository->findAll()
        ]));
+       $response->setSharedMaxAge(3600);
+
+       return $response;
     }
 
     /**
@@ -97,5 +100,19 @@ class ConferenceController extends AbstractController
             'next' => min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
             'comment_form' => $form->createView()
         ]));
+    }
+
+    /**
+     * @Route("/conference_header", name="conference_header")
+     */
+    public function conferenceHeader(ConferenceRepository $conferenceRepository) 
+    {
+        $response = new Response($this->twig->render('conference/header.html.twig',[
+            'conferences' => $conferenceRepository->findAll(),
+        ]));
+
+        $response->setSharedMaxAge(3600);
+
+        return $response;
     }
 }
