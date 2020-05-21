@@ -14,6 +14,7 @@ use App\Entity\Comment;
 use App\Form\CommentFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use App\SpamChecker;
 
 class ConferenceController extends AbstractController
 {
@@ -44,6 +45,7 @@ class ConferenceController extends AbstractController
         Request $request, 
         Conference $conference, 
         CommentRepository $commentRepository,
+        SpamChecker $spamChecker,
         string $photoDir
     ) {
         $comment = new Comment();
@@ -67,6 +69,18 @@ class ConferenceController extends AbstractController
             }
 
             $this->entityManager->persist($comment);
+
+            $context = [
+                'user_ip' => $request->getClientIp(),
+                'user_agent' => $request->headers->get('user-agent'),
+                'referrer' => $request->headers->get('referrer'),
+                'permalink' => $request->getUri(),
+            ];
+
+            if (2 === $spamChecker->getSpamScore($comment, $context)) {
+                throw new \RuntimeException("Spam! Spam! Spam!");
+            }
+
             $this->entityManager->flush();
 
             return $this->redirectToRoute('conference', ['slug' => $conference->getSlug()]);
