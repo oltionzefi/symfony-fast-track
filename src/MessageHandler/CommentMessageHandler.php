@@ -86,9 +86,11 @@ class CommentMessageHandler implements MessageHandlerInterface
             );
             $this->entityManager->flush();
 
+            $nofication = new CommentReviewNotification($comment, $message->getReviewUrl());
+
             $this->notifier->send(
-                new CommentReviewNotification($comment),
-                $this->notifier->getAdminRecipients()
+                $nofication,
+                ...$this->notifier->getAdminRecipients()
             );
         } elseif ($this->logger) {
             $this->logger->debug('Dropping comment message', [

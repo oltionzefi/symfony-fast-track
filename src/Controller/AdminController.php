@@ -14,6 +14,7 @@ use App\Entity\Comment;
 use App\Message\CommentMessage;
 use Symfony\Bundle\FrameworkBundle\HttpCache\HttpCache;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @Route("/admin")
@@ -58,7 +59,14 @@ class AdminController extends AbstractController
         $this->entityManager->flush();
 
         if ($accepted) {
-            $this->bus->dispatch(new CommentMessage($comment->getId()));
+            $reviewUrl = $this->generateUrl(
+                'review_comment', 
+                [
+                    'id' => $comment->getId()
+                ],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
+            $this->bus->dispatch(new CommentMessage($comment->getId(), $reviewUrl));
         }
 
         return $this->render('admin/review.html.twig', [

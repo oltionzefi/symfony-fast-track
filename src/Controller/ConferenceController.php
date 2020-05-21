@@ -19,6 +19,7 @@ use App\Message\CommentMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Notifier\Notification\Notification;
 use Symfony\Component\Notifier\NotifierInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ConferenceController extends AbstractController
 {
@@ -89,7 +90,15 @@ class ConferenceController extends AbstractController
                 'referrer' => $request->headers->get('referrer'),
                 'permalink' => $request->getUri(),
             ];
-            $this->bus->dispatch(new CommentMessage($comment->getId(), $context));
+
+            $reviewUrl = $this->generateUrl(
+                'review_comment', 
+                [
+                    'id' => $comment->getId()
+                ],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
+            $this->bus->dispatch(new CommentMessage($comment->getId(), $reviewUrl, $context));
 
             $notifier->send(
                 new Notification("Thank you for your feedback; your commment will be posted after moderation.", 
