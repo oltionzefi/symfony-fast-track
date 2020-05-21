@@ -39,7 +39,7 @@ class AppFixtures extends Fixture
         $manager->persist($barcelona);
 
         $comment1 = new Comment();
-        $comment1->setConference($rome);
+        $comment1->setConference($barcelona);
         $comment1->setAuthor('Sandro');
         $comment1->setEmail('sandro.noon@gmail.com');
         $comment1->setText('Greetings!!!');
