@@ -184,6 +184,9 @@
     "php-http/promise": {
         "version": "v1.0.0"
     },
+    "php-webdriver/webdriver": {
+        "version": "1.8.2"
+    },
     "psr/cache": {
         "version": "1.0.1"
     },
@@ -402,6 +405,9 @@
     "symfony/orm-pack": {
         "version": "v1.0.8"
     },
+    "symfony/panther": {
+        "version": "v0.7.1"
+    },
     "symfony/phpunit-bridge": {
         "version": "4.3",
         "recipe": {
@@ -437,6 +443,9 @@
     },
     "symfony/polyfill-uuid": {
         "version": "v1.17.0"
+    },
+    "symfony/process": {
+        "version": "v5.0.8"
     },
     "symfony/profiler-pack": {
         "version": "v1.0.4"
