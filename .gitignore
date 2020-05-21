@@ -9,6 +9,7 @@
 /vendor/
 ###< symfony/framework-bundle ###
 /.env
+/.prod
 /public/uploads/
 /config/secrets/**/*.private.php
 ###> symfony/phpunit-bridge ###

@@ -9,7 +9,7 @@ class CommentMessageHandlerTest extends WebTestCase
     public function testMailerAssertion()
     {
         $client = static::createClient();
-        $client->request('GET', '/');
+        $client->request('GET', '/en');
 
         $this->assertEmailCount(0);
         $event = $this->getMailerEvent(0);
